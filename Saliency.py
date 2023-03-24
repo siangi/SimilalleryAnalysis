@@ -125,7 +125,6 @@ def testAllImagesInDirectory():
     directory = "D:\\Studium\\Bachelor\\ArtVeeData\\"
 
     for file in os.listdir(directory):
-        filename = os.fsencode(file)
         testSaliencyAlgorithms(directory + file)
 
 
