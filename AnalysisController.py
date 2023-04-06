@@ -4,7 +4,7 @@ import os
 import numpy as np
 import cv2 as cv
 import ImageAnalysisData
-import Saliency
+import AnalysisModels.Saliency as SaliencyModel
 # controls the reading and writing of the csv file data
 class AnalysisController:
     def __init__(self, sourceCsvPath, resultCSVPath) -> None:
@@ -22,7 +22,6 @@ class AnalysisController:
                         headerList = row.keys()
                         headerList = self.prepareHeaderList(headerList)
                         writer = csv.DictWriter(f=writeFile, fieldnames=["Title","Year","isCentury","Artist","Category","URL","Path","saliencyCenter","saliencyRect"], delimiter=";")
-                        print("headerwriteCalled")
                         writer.writeheader()
 
                     imgPath = self.extractPath(row)
@@ -55,10 +54,10 @@ class AnalysisController:
     def analyseImage(self, imgData):
         analysisResults = ImageAnalysisData.ImageAnalysisData()
 
-        saliencyMap = Saliency.spectralResidual(imgData, True)
-        saliencyCoords = Saliency.calcSaliencyCoordinates(saliencyMap)
-        analysisResults.setSaliencyRect(saliencyCoords[0])
-        analysisResults.setSaliencyCenter(saliencyCoords[1])
+        saliencyModel = SaliencyModel()
+        saliencyData = saliencyModel.saliencyDataFromImage(imgData)
+        analysisResults.setSaliencyRect(saliencyData[0])
+        analysisResults.setSaliencyCenter(saliencyData[1])
 
         return analysisResults
 
