@@ -5,6 +5,9 @@ import numpy as np
 import cv2 as cv
 import ImageAnalysisData
 import AnalysisModels.Saliency as SaliencyModel
+import AnalysisModels.HistogramOrientedGradients as HistogramModel
+import AnalysisModels.ColorPalette as ColorModel
+
 # controls the reading and writing of the csv file data
 class AnalysisController:
     def __init__(self, sourceCsvPath, resultCSVPath) -> None:
@@ -21,7 +24,7 @@ class AnalysisController:
                     if (writer == None):
                         headerList = row.keys()
                         headerList = self.prepareHeaderList(headerList)
-                        writer = csv.DictWriter(f=writeFile, fieldnames=["Title","Year","isCentury","Artist","Category","URL","Path","saliencyCenter","saliencyRect"], delimiter=";")
+                        writer = csv.DictWriter(f=writeFile, fieldnames=["Title","Year","isCentury","Artist","Category","URL","Path","saliencyCenter","saliencyRect", "angleRatios", "colorPalette", "paletteRatios"], delimiter=";")
                         writer.writeheader()
 
                     imgPath = self.extractPath(row)
@@ -54,10 +57,18 @@ class AnalysisController:
     def analyseImage(self, imgData):
         analysisResults = ImageAnalysisData.ImageAnalysisData()
 
-        saliencyModel = SaliencyModel()
-        saliencyData = saliencyModel.saliencyDataFromImage(imgData)
+        saliencyModel = SaliencyModel.SaliencyAnalyser()
+        saliencyData = saliencyModel.saliencyDataFromImage(imgData, True)
         analysisResults.setSaliencyRect(saliencyData[0])
         analysisResults.setSaliencyCenter(saliencyData[1])
+
+        histogramModel = HistogramModel.GradientHistogramAnalyser()
+        histogramRatios = histogramModel.calcHoGData(imgData)
+        analysisResults.setAngleRatios(histogramRatios)
+
+        colorPalette, colorRatios = ColorModel.getColorgramPalette(imgData)
+        analysisResults.setColorPalette(colorPalette)
+        analysisResults.setPaletteRatios(colorRatios)
 
         return analysisResults
 
@@ -72,6 +83,6 @@ if __name__ == "__main__":
     #     raise Exception("script can only be called with 2 Arguments. InputCSV Path and OutputCSV Path!")
     
     # Controller = AnalysisController(sys.argv[1], sys.argv[2])
-    Controller = AnalysisController("D:/Studium/Bachelor/ArtVeeDataFull/artvee.csv", "D:/Studium/Bachelor/ArtVeeDataFull/analysisResult.csv")
+    Controller = AnalysisController("D:/Studium/Bachelor/artveeTogether.csv", "D:/Studium/Bachelor/analysisResult.csv")
     Controller.analyseImagesFromCSVFile()
     

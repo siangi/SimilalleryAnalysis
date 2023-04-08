@@ -34,7 +34,7 @@ class GradientHistogramAnalyser:
                 #the actual cell data is nested two times
                 magnitudes = cell[0][0]
                 cellMaximum = max(magnitudes)
-                for magnitudeIdx in range(0, len(magnitudes)):
+                for magnitudeIdx in range(len(magnitudes)):
                     if magnitudes[magnitudeIdx] == cellMaximum:
                         magnitudeIsMax[magnitudeIdx] += 1
         
@@ -42,15 +42,15 @@ class GradientHistogramAnalyser:
 
     # in cell without a gradient, every angle is the maximum angle, so we
     # substract the minimum from all of them to ged rid of that.
-    def _normaliseArrayValues(data):
+    def _normaliseArrayValues(self, data):
         minimum = min(data)
         # for point in data:
         #     result.append(point - minimum)
 
         return [val - minimum for val in data]
     
-    def relativeToSum(data):
+    def relativeToSum(self,data):
         arraySum = sum(data)
         # for val in data:
         #     relative.append(round(val / arraySum, 3))
-        return [round(val / arraySum) for val in data]
+        return [round(val / arraySum, 3) for val in data]

@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import cv2 as cv
 import os
 
@@ -98,6 +99,6 @@ class SaliencyAnalyser:
     #returns bounding rectangle (x,y, width, height)[0] and its centerpoint[1] from a binary saliency Map
     def calcSaliencyCoordinates(self, contour):
         bounds = cv.boundingRect(contour)
-        centerX = bounds[0] + (bounds[2] / 2)
-        centerY = bounds[1] + (bounds[3] / 2)
+        centerX = bounds[0] + math.floor(bounds[2] / 2)
+        centerY = bounds[1] + math.floor(bounds[3] / 2)
         return (bounds, (centerX, centerY))
