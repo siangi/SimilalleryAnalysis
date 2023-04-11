@@ -20,6 +20,7 @@ class AnalysisController:
             reader = csv.DictReader(readFile, delimiter=";")
             with open(self.resultCSVPath, "w", encoding="utf8", newline="") as writeFile:
                 writer = None
+                counter = 0
                 for row in reader:
                     if (writer == None):
                         headerList = row.keys()
@@ -33,9 +34,14 @@ class AnalysisController:
                         continue
                     
                     imageData = cv.imdecode(np.fromfile(imgPath, dtype=np.uint8), cv.IMREAD_UNCHANGED)
-                    analysisResults = self.analyseImage(imageData)
+                    # imageData = cv.pyrDown(imageData)
+                    # imageData = cv.pyrDown(imageData)
+                    analysisResults = self.analyseImage(imageData, imgPath)
                     writeDict = self.createResultRow(row, analysisResults)
                     writer.writerow(writeDict)
+                    counter += 1
+                    if counter % 10 == 0:
+                        print("Images Analysed: " + str(counter))
                     
 
 
@@ -54,7 +60,7 @@ class AnalysisController:
         return imgPath
 
     #opensImage, controls all of the analysis, writes result into a ImageData Object
-    def analyseImage(self, imgData):
+    def analyseImage(self, imgData,imgPath):
         analysisResults = ImageAnalysisData.ImageAnalysisData()
 
         saliencyModel = SaliencyModel.SaliencyAnalyser()
@@ -66,7 +72,7 @@ class AnalysisController:
         histogramRatios = histogramModel.calcHoGData(imgData)
         analysisResults.setAngleRatios(histogramRatios)
 
-        colorPalette, colorRatios = ColorModel.getColorgramPalette(imgData)
+        colorPalette, colorRatios = ColorModel.getColorgramPalette(imgPath)
         analysisResults.setColorPalette(colorPalette)
         analysisResults.setPaletteRatios(colorRatios)
 
