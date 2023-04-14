@@ -1,7 +1,7 @@
 from Writers.WriterBase import WriterBase
 from ImageAnalysisData import ImageAnalysisData
 import mysql.connector
-import connection.py
+import connection
 
 class MySqlWriter(WriterBase):
     def __init__(self) -> None:
@@ -9,7 +9,7 @@ class MySqlWriter(WriterBase):
         self.connection = None
 
     def prepare(self):
-        self.connection = mysql.connector.connect(host=connection.host, username=connection.username, password=connection.password)
+        self.connection = mysql.connector.connect(host=connection.host, username=connection.username, password=connection.password, database="scheme_test_similallery")
         pass
 
     def writeRow(self, sourceRow: dict, analysisResult: ImageAnalysisData):
@@ -35,50 +35,54 @@ class MySqlWriter(WriterBase):
             `sal_rect_height`)
             VALUES
             (%(title)s,
-            %(year)i,
+            %(year)s,
             %(URL)s,
-            %(artistID)i,
-            %(categoryID)i,
-            %(h1)i, %(s1)i, %(l1)i,
-            %(h2)i, %(s2)i, %(l2)i,
-            %(h3)i, %(s3)i, %(l3)i,
-            %(h4)i, %(s4)i, %(l4)i,
-            %(h5)i, %(s5)i, %(l5)i,
-            %(palRatio2)f,%(palRatio3)f,%(palRatio1)f,%(palRatio4)f,%(palRatio5)f,
-            %(angleRatio1)f, %(angleRatio2)f, %(angleRatio3)f, %(angleRatio4)f, 
-            %(angleRatio5)f, %(angleRatio6)f, %(angleRatio7)f, %(angleRatio8)f,
-            %(salCenterX)i,
-            %(salCenterY)i,
-            %(salRectX)i,
-            %(salRectY)i,
-            %(salRectWidth)i,
-            %(salRectHeight)i);
+            %(artistID)s,
+            %(categoryID)s,
+            %(h1)s, %(s1)s, %(l1)s,
+            %(h2)s, %(s2)s, %(l2)s,
+            %(h3)s, %(s3)s, %(l3)s,
+            %(h4)s, %(s4)s, %(l4)s,
+            %(h5)s, %(s5)s, %(l5)s,
+            %(palRatio2)s,%(palRatio3)s,%(palRatio1)s,%(palRatio4)s,%(palRatio5)s,
+            %(angleRatio1)s, %(angleRatio2)s, %(angleRatio3)s, %(angleRatio4)s, 
+            %(angleRatio5)s, %(angleRatio6)s, %(angleRatio7)s, %(angleRatio8)s,
+            %(salCenterX)s,
+            %(salCenterY)s,
+            %(salRectX)s,
+            %(salRectY)s,
+            %(salRectWidth)s,
+            %(salRectHeight)s);
             """
         artistID = self._getArtistID(sourceRow["Artist"])
         categoryID = self._getCategoryID(sourceRow["Category"])
+        year = "0"
+        if(int(sourceRow["Year"]) > 0):
+            year = sourceRow["Year"]
+
+        cursor = self.connection.cursor(buffered=True)
         try:
-            cursor = self.connection.cursor(buffered=True)
-            cursor.execture(INSERT_QUERY, {
+            datadict = {
                 "title": sourceRow["Title"],
-                "year": sourceRow["Year"],
+                "year": year,
                 "URL": sourceRow["URL"],
                 "artistID": artistID,
                 "categoryID": categoryID,
-                "h1": analysisResult.colorPalette[0].h,
-                "s1": analysisResult.colorPalette[0].s,
-                "l1": analysisResult.colorPalette[0].l,
-                "h2": analysisResult.colorPalette[1].h,
-                "s2": analysisResult.colorPalette[1].s,
-                "l2": analysisResult.colorPalette[1].l,
-                "h3": analysisResult.colorPalette[2].h,
-                "s3": analysisResult.colorPalette[2].s,
-                "l3": analysisResult.colorPalette[2].l,
-                "h4": analysisResult.colorPalette[3].h,
-                "s4": analysisResult.colorPalette[3].s,
-                "l4": analysisResult.colorPalette[3].l,
-                "h5": analysisResult.colorPalette[4].h,
-                "s5": analysisResult.colorPalette[4].s,
-                "l5": analysisResult.colorPalette[4].l,
+                "h1": analysisResult.colorPalette[0]["h"],
+                "s1": analysisResult.colorPalette[0]["s"],
+                "l1": analysisResult.colorPalette[0]["l"],
+                "h2": analysisResult.colorPalette[1]["h"],
+                "s2": analysisResult.colorPalette[1]["s"],
+                "l2": analysisResult.colorPalette[1]["l"],
+                "h3": analysisResult.colorPalette[2]["h"],
+                "s3": analysisResult.colorPalette[2]["s"],
+                "l3": analysisResult.colorPalette[2]["l"],
+                "h4": analysisResult.colorPalette[3]["h"],
+                "s4": analysisResult.colorPalette[3]["s"],
+                "l4": analysisResult.colorPalette[3]["l"],
+                "h5": analysisResult.colorPalette[4]["h"],
+                "s5": analysisResult.colorPalette[4]["s"],
+                "l5": analysisResult.colorPalette[4]["l"],
                 "palRatio1": analysisResult.paletteRatios[0],
                 "palRatio2": analysisResult.paletteRatios[1],
                 "palRatio3": analysisResult.paletteRatios[2],
@@ -98,42 +102,43 @@ class MySqlWriter(WriterBase):
                 "salRectY": analysisResult.saliencyRect[1],
                 "salRectWidth": analysisResult.saliencyRect[2],
                 "salRectHeight": analysisResult.saliencyRect[3],
-            })
-
-            print(cursor.lastrowid())
+            }
+            
+            cursor.execute(INSERT_QUERY, datadict)
+            self.connection.commit()
         finally:
             cursor.close()
     
     def _getCategoryID(self, category: str):
-        SELECT_QUERY = "SELECT idcategory FROM category WHERE name = %(name)"
-        INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`category`(`name`) VALUES (`%(name)s`);"
+        SELECT_QUERY = "SELECT idcategory FROM category WHERE name = %(name)s"
+        INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`category`(`name`) VALUES (%(name)s);"
         cursor = self.connection.cursor(buffered=True)
         cursor.execute(SELECT_QUERY, {"name": category.strip()})
         try:
             if (cursor.rowcount > 1):
                 raise Exception("illegal Database state, duplicate category")
             elif (cursor.rowcount == 1):
-                return cursor.fetchone()
+                return cursor.fetchone()[0]
             else:
                 cursor.execute(INSERT_QUERY, {"name": category.strip()})
-                return cursor.lastrowid()
+                return cursor.lastrowid
         finally:
             cursor.close()
     
 
     def _getArtistID(self, artist):
         SELECT_QUERY = "SELECT `artist`.`idartist` FROM `scheme_test_similallery`.`artist` WHERE `name` = %(name)s;"
-        INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`artist` (`name`) VALUES %(name)s;"
+        INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`artist` (`name`) VALUES (%(name)s);"
         cursor = self.connection.cursor(buffered=True)
         cursor.execute(SELECT_QUERY, {"name": artist.strip()})
         try:
             if(cursor.rowcount > 1):
                 raise Exception("illegal Database state, duplicate artist")
             elif(cursor.rowcount == 1):
-                return cursor.fetchone()
+                return cursor.fetchone()[0]
             else:
                 cursor.execute(INSERT_QUERY, {"name": artist.strip()})
-                return cursor.fetchone()
+                return cursor.lastrowid
         finally:
             cursor.close()
 
