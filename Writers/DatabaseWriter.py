@@ -1,6 +1,7 @@
 from Writers.WriterBase import WriterBase
 from ImageAnalysisData import ImageAnalysisData
 import mysql.connector
+import connection.py
 
 class MySqlWriter(WriterBase):
     def __init__(self) -> None:
@@ -8,7 +9,7 @@ class MySqlWriter(WriterBase):
         self.connection = None
 
     def prepare(self):
-        self.connection = mysql.connector.connect(host="localhost", username="root", password="zUc6BFSzNAR3yJ909P9k")
+        self.connection = mysql.connector.connect(host=connection.host, username=connection.username, password=connection.password)
         pass
 
     def writeRow(self, sourceRow: dict, analysisResult: ImageAnalysisData):
