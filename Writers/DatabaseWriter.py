@@ -10,8 +10,7 @@ class MySqlWriter(WriterBase):
 
     def prepare(self):
         self.connection = mysql.connector.connect(host=connection.host, username=connection.username, password=connection.password, database="scheme_test_similallery")
-        pass
-
+        
     def writeRow(self, sourceRow: dict, analysisResult: ImageAnalysisData):
         INSERT_QUERY = """INSERT INTO `scheme_test_similallery`.`image`
             (`title`,

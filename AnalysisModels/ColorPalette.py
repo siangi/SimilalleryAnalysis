@@ -2,8 +2,8 @@ import colorgram
 import numpy as np
 from PIL import Image
 
-#use this, it's faster
-def getColorgramPalette(basePath):
+# returns top 5 colors in a tuple and how much relative space they occupy in an image as a tuple. 
+def getColorgramPalette(basePath: str) -> tuple:
     with Image.open(basePath) as img:
         img = img.reduce(2)
         palette = colorgram.extract(img, 5)
@@ -16,7 +16,7 @@ def getColorgramPalette(basePath):
         
         return (hsvPalette, proportions)
     
-
+# colorgram extract all values on a scale of 0,255 but the normal hsl values are within a different scale
 def rescaleHSLValues(originalVals):
     return {
         "h": np.floor(np.interp(originalVals.h, [0,255], [0,360])),

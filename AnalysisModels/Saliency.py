@@ -54,6 +54,7 @@ class SaliencyAnalyser:
     #spectralResiudal Saliency Method, returns binary Saliency Map
     #is default Saliency Method because it produces the best results
     def spectralResidual(self, img, downscale):
+        #for better performance
         if(downscale):
             img = cv.pyrDown(img, (0,0))
             img = cv.pyrDown(img, (0,0))
@@ -99,7 +100,7 @@ class SaliencyAnalyser:
     #returns bounding rectangle (x,y, width, height)[0] and its centerpoint[1] from a binary saliency Map
     def calcSaliencyCoordinates(self, contour, imageDimensions):
         bounds = cv.boundingRect(contour)
-        #rescale values to be a percentage. For comparison across image formats
+        #rescale values to be a percentage. For comparison across different image formats
         scaledBounds = (
             int(np.floor(np.interp(bounds[0], [0,imageDimensions[0]], [0,100]))),
             int(np.floor(np.interp(bounds[1], [0, imageDimensions[1]], [0, 100]))),

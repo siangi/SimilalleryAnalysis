@@ -16,7 +16,7 @@ class AnalysisController:
         self.sourceCsvPath = sourceCsvPath
         self.resultCSVPath = resultCSVPath
 
-    #creates reader and writer for
+    #creates reader and writer and executes them for each row in the sourceCSV
     def analyseImagesFromCSVFile(self):
         with open(self.sourceCsvPath, encoding="utf8") as readFile:
             reader = csv.DictReader(readFile, delimiter=";")
