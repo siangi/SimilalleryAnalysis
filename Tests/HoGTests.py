@@ -1,12 +1,12 @@
 import unittest
 import numpy.testing as nptesting
-from HistogramOrientedGradients import GradientHistogramAnalyser
+from AnalysisModels.HistogramOrientedGradients import GradientHistogramAnalyser
 import skimage.io
 
 
 class TestHOG(unittest.TestCase):
     def testFullService(self):
-        base = skimage.io.imread(".\\TestResources\\HogTest.png")
+        base = skimage.io.imread(".\\Tests\\TestResources\\HogTest.png")
         EXPECTED = [0.0, 0.0, 0.0, 0.0, 0.007, 0.0, 0.993, 0.0]
         model = GradientHistogramAnalyser()
         nptesting.assert_array_equal(model.calcHoGData(base), EXPECTED)

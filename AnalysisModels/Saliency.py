@@ -23,7 +23,7 @@ class SaliencyAnalyser:
     # and saves the saliency map to a member variable
     def saliencyDataFromImage(self, baseImage, downscale):
         self.spectralResidual(baseImage, downscale)
-        return self.calcSaliencyCoordinates(self.getLargestContourArea(self.saliencyMap))
+        return self.calcSaliencyCoordinates(self.getLargestContourArea(self.saliencyMap), self.saliencyMap.shape)
 
     #grabCut Slaiency Method returns foreground with all pxiels visible
     def grabCut(self, img, downscale):
@@ -97,8 +97,17 @@ class SaliencyAnalyser:
         return largestContour
 
     #returns bounding rectangle (x,y, width, height)[0] and its centerpoint[1] from a binary saliency Map
-    def calcSaliencyCoordinates(self, contour):
+    def calcSaliencyCoordinates(self, contour, imageDimensions):
         bounds = cv.boundingRect(contour)
-        centerX = bounds[0] + math.floor(bounds[2] / 2)
-        centerY = bounds[1] + math.floor(bounds[3] / 2)
-        return (bounds, (centerX, centerY))
+        #rescale values to be a percentage. For comparison across image formats
+        scaledBounds = (
+            int(np.floor(np.interp(bounds[0], [0,imageDimensions[0]], [0,100]))),
+            int(np.floor(np.interp(bounds[1], [0, imageDimensions[1]], [0, 100]))),
+            int(np.floor(np.interp(bounds[2], [0,imageDimensions[0]], [0,100]))),
+            int(np.floor(np.interp(bounds[3], [0, imageDimensions[1]], [0, 100])))
+        )
+        centerX = scaledBounds[0] + math.floor(scaledBounds[2] / 2)
+        centerY = scaledBounds[1] + math.floor(scaledBounds[3] / 2)
+
+        return (scaledBounds, (centerX, centerY))
+    

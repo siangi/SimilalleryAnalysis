@@ -1,10 +1,6 @@
 import unittest
-import ColorPalette
+import AnalysisModels.ColorPalette as ColorPalette
 import os
-
-
-# 75, 87, 90 / 358, 88, 93 / 340, 32, 100 / 0, 0, 50
-
 
 class TestColorPalette(unittest.TestCase):
     def testFullService(self):
@@ -19,7 +15,7 @@ class TestColorPalette(unittest.TestCase):
         ]
 
         for case in testCases:                        
-            actualPalette = ColorPalette.getColorgramPalette(os.getcwd() + "/TestResources/" + case["imgName"])
+            actualPalette = ColorPalette.getColorgramPalette(".\\Tests\\TestResources\\" + case["imgName"])
             self.assertCountEqual(actualPalette[0], case["expectedPalette"])
             for index in range(len(case["expectedPalette"])):
                 self.assertDictEqual(case["expectedPalette"][index], actualPalette[0][index])
