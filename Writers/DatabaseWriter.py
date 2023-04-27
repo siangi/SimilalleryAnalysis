@@ -11,7 +11,7 @@ class MySqlWriter(WriterBase):
     def prepare(self):
         self.connection = mysql.connector.connect(host=connection.host, username=connection.username, password=connection.password, database="scheme_test_similallery")
         
-    def writeRow(self, sourceRow: dict, analysisResult: ImageAnalysisData):
+    def writeRow(self, sourceRow: dict, analysisResult: ImageAnalysisData, artistBio: tuple):
         INSERT_QUERY = """INSERT INTO `scheme_test_similallery`.`image`
             (`title`,
             `year`,
@@ -53,7 +53,7 @@ class MySqlWriter(WriterBase):
             %(salRectWidth)s,
             %(salRectHeight)s);
             """
-        artistID = self._getArtistID(sourceRow["Artist"])
+        artistID = self._getArtistID(artistBio[0], artistBio[1])
         categoryID = self._getCategoryID(sourceRow["Category"])
         year = "0"
         if(int(sourceRow["Year"]) > 0):
@@ -62,7 +62,7 @@ class MySqlWriter(WriterBase):
         cursor = self.connection.cursor(buffered=True)
         try:
             datadict = {
-                "title": sourceRow["Title"],
+                "title": sourceRow["Title"].strip(),
                 "year": year,
                 "URL": sourceRow["URL"],
                 "artistID": artistID,
@@ -105,6 +105,8 @@ class MySqlWriter(WriterBase):
             
             cursor.execute(INSERT_QUERY, datadict)
             self.connection.commit()
+        except Exception as err:
+            print(err)
         finally:
             cursor.close()
     
@@ -121,23 +123,46 @@ class MySqlWriter(WriterBase):
             else:
                 cursor.execute(INSERT_QUERY, {"name": category.strip()})
                 return cursor.lastrowid
+        except Exception as err:
+            print(err)
         finally:
             cursor.close()
     
 
-    def _getArtistID(self, artist):
-        SELECT_QUERY = "SELECT `artist`.`idartist` FROM `scheme_test_similallery`.`artist` WHERE `name` = %(name)s;"
-        INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`artist` (`name`) VALUES (%(name)s);"
+    def _getArtistID(self, artist:str, nationality:str):
+        SELECT_QUERY = "SELECT `artist`.`idartist` FROM `scheme_test_similallery`.`artist` WHERE `name` = %(name)s AND nationalityID = %(nationalityId)s;"
+        INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`artist` (`name`, `nationalityID`) VALUES (%(name)s, %(nationalityId)s);"
+        nationalityId = self._getNationalityID(nationality)
         cursor = self.connection.cursor(buffered=True)
-        cursor.execute(SELECT_QUERY, {"name": artist.strip()})
+        cursor.execute(SELECT_QUERY, {"name": artist.strip(), "nationalityId": nationalityId})
         try:
             if(cursor.rowcount > 1):
                 raise Exception("illegal Database state, duplicate artist")
             elif(cursor.rowcount == 1):
                 return cursor.fetchone()[0]
             else:
-                cursor.execute(INSERT_QUERY, {"name": artist.strip()})
+                cursor.execute(INSERT_QUERY, {"name": artist.strip(), "nationalityId": nationalityId})
                 return cursor.lastrowid
+        except Exception as err:
+            print(err)
+        finally:
+            cursor.close()
+
+    def _getNationalityID(self, nationality):
+        SELECT_QUERY = "SELECT `nationality`.`idnationality` FROM `scheme_test_similallery`.`nationality` WHERE `nationality`.`name` = %(nationality)s"
+        INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`nationality` (`name`) VALUES (%(nationality)s);"
+        cursor = self.connection.cursor(buffered=True)
+        cursor.execute(SELECT_QUERY, {"nationality": nationality.strip()})
+        try: 
+            if(cursor.rowcount > 1):
+                raise Exception("illegal Database state, duplicate Nationality")
+            elif(cursor.rowcount == 1):
+                return cursor.fetchone()[0]
+            else:
+                cursor.execute(INSERT_QUERY, {"nationality": nationality.strip()})
+                return cursor.lastrowid  
+        except Exception as err:
+            print(err)
         finally:
             cursor.close()
 

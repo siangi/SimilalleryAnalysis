@@ -3,6 +3,7 @@ import sys
 import os
 import numpy as np
 import cv2 as cv
+import MetadataUtils
 import ImageAnalysisData
 import AnalysisModels.Saliency as SaliencyModel
 import AnalysisModels.HistogramOrientedGradients as HistogramModel
@@ -23,8 +24,7 @@ class AnalysisController:
             
             writer = MySqlWriter()
             writer.prepare()
-            # writer = CSVWriter(self.resultCSVPath)
-            # writer.prepare(["Title","Year","isCentury","Artist","Category","URL","Path","saliencyCenter","saliencyRect", "angleRatios", "colorPalette", "paletteRatios"])
+
             counter = 0
             for row in reader:
                 imgPath = self.extractPath(row)
@@ -34,10 +34,9 @@ class AnalysisController:
                         continue
                     
                     imageData = cv.imdecode(np.fromfile(imgPath, dtype=np.uint8), cv.IMREAD_UNCHANGED)
-                    # imageData = cv.pyrDown(imageData)
-                    # imageData = cv.pyrDown(imageData)
                     analysisResults = self.analyseImage(imageData, imgPath)
-                    writer.writeRow(row, analysisResults)
+                    artistBioData = MetadataUtils.splitBioString(row["Artist"])
+                    writer.writeRow(row, analysisResults, artistBioData)
                 except Exception as err:
                     print(err)
                 
