@@ -10,6 +10,8 @@ def getColorgramPalette(basePath: str) -> tuple:
         hsvPalette = []
         proportions = []
 
+        palette.sort(key=lambda color: color.proprotion, reverse=True)
+
         for color in palette:
             hsvPalette.append(rescaleHSLValues(color.hsl))
             proportions.append(color.proportion)
