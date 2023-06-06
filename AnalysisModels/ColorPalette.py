@@ -4,6 +4,7 @@ from PIL import Image
 
 # returns top 5 colors in a tuple and how much relative space they occupy in an image as a tuple. 
 def getColorgramPalette(basePath: str) -> tuple:
+    # cologram works with a different image format than the other frameworks, so I need to load it again.
     with Image.open(basePath) as img:
         img = img.reduce(2)
         palette = colorgram.extract(img, 5)

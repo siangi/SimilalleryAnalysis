@@ -44,13 +44,11 @@ class GradientHistogramAnalyser:
     # substract the minimum from all of them to ged rid of that.
     def _normaliseArrayValues(self, data):
         minimum = min(data)
-        # for point in data:
-        #     result.append(point - minimum)
 
         return [val - minimum for val in data]
     
+    # use relative values, for easier comparison
     def relativeToSum(self,data):
         arraySum = sum(data)
-        # for val in data:
-        #     relative.append(round(val / arraySum, 3))
+
         return [round(val / arraySum, 3) for val in data]

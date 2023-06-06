@@ -1,6 +1,8 @@
 from Writers.WriterBase import WriterBase
 import csv
 
+# I used this to test the analysis before the databse existed. 
+#It's not in use anymore.
 class CSVWriter(WriterBase):
     def __init__(self, path) -> None:
         self.path = path

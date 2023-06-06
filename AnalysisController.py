@@ -45,7 +45,8 @@ class AnalysisController:
                     print("Images Analysed: " + str(counter))
 
             writer.cleanup()
-                    
+
+    # check if image Path exists.    
     def extractPath(self, row):
         imgPath = row["Path"]
         if (not os.path.exists(imgPath)):
@@ -72,13 +73,8 @@ class AnalysisController:
 
         return analysisResults
 
-#D:/Studium/Bachelor/ArtVeeDataFull/artvee.csv       
-#D:/Studium/Bachelor/ArtVeeDataFull/analysisResult.csv
 if __name__ == "__main__":
-    # if (len(sys.argv) != 3):
-    #     raise Exception("script can only be called with 2 Arguments. InputCSV Path and OutputCSV Path!")
-    
-    # Controller = AnalysisController(sys.argv[1], sys.argv[2])
+    # change the paths to run your own analysis
     Controller = AnalysisController("C:/Studium/BPROJ/artveeTogetherNewPath.csv", "C:/Studium/BPROJ/analysisResult.csv")
     Controller.analyseImagesFromCSVFile()
     

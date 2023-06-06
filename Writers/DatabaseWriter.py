@@ -11,6 +11,7 @@ class MySqlWriter(WriterBase):
     def prepare(self):
         self.connection = mysql.connector.connect(host=connection.host, username=connection.username, password=connection.password, database="scheme_test_similallery")
         
+    # map the analysis values to the correct columns and insert it
     def writeRow(self, sourceRow: dict, analysisResult: ImageAnalysisData, artistBio: tuple):
         INSERT_QUERY = """INSERT INTO `scheme_test_similallery`.`image`
             (`title`,
@@ -110,6 +111,7 @@ class MySqlWriter(WriterBase):
         finally:
             cursor.close()
     
+    # find or insert the right category
     def _getCategoryID(self, category: str):
         SELECT_QUERY = "SELECT idcategory FROM category WHERE name = %(name)s"
         INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`category`(`name`) VALUES (%(name)s);"
@@ -128,7 +130,7 @@ class MySqlWriter(WriterBase):
         finally:
             cursor.close()
     
-
+    # find or insert the right artist
     def _getArtistID(self, artist:str, nationality:str):
         SELECT_QUERY = "SELECT `artist`.`idartist` FROM `scheme_test_similallery`.`artist` WHERE `name` = %(name)s AND nationalityID = %(nationalityId)s;"
         INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`artist` (`name`, `nationalityID`) VALUES (%(name)s, %(nationalityId)s);"
@@ -148,6 +150,7 @@ class MySqlWriter(WriterBase):
         finally:
             cursor.close()
 
+    # find or insert the right nationality
     def _getNationalityID(self, nationality):
         SELECT_QUERY = "SELECT `nationality`.`idnationality` FROM `scheme_test_similallery`.`nationality` WHERE `nationality`.`name` = %(nationality)s"
         INSERT_QUERY = "INSERT INTO `scheme_test_similallery`.`nationality` (`name`) VALUES (%(nationality)s);"

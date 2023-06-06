@@ -54,6 +54,7 @@ class SaliencyAnalyser:
     #spectralResiudal Saliency Method, returns binary Saliency Map
     #is default Saliency Method because it produces the best results
     def spectralResidual(self, img, downscale):
+
         #for better performance
         if(downscale):
             img = cv.pyrDown(img, (0,0))
@@ -61,10 +62,12 @@ class SaliencyAnalyser:
 
         detector = cv.saliency.StaticSaliencySpectralResidual_create()
         (success, map) = detector.computeSaliency(img)
+        # scale the map to full greyscale and then threshold hit to get the most salient regions 
         map = (map * 255).astype("uint8")
         threshMap = cv.threshold(map.astype("uint8"), 0, 255,
         cv.THRESH_BINARY | cv.THRESH_OTSU)[1]
         self.saliencyMap = threshMap
+
         return threshMap
 
     #finegrained Saliency Method, returns binary Saliency Map
@@ -75,6 +78,8 @@ class SaliencyAnalyser:
 
         detector = cv.saliency.StaticSaliencyFineGrained_create()
         (success, map) = detector.computeSaliency(img)
+        
+        # scale the map to full greyscale and then threshold hit to get the most salient regions 
         map = (map * 255).astype("uint8")
         threshMap = cv.threshold(map.astype("uint8"), 0, 255,
         cv.THRESH_BINARY | cv.THRESH_OTSU)[1]
