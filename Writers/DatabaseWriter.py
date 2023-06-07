@@ -44,7 +44,7 @@ class MySqlWriter(WriterBase):
             %(h3)s, %(s3)s, %(l3)s,
             %(h4)s, %(s4)s, %(l4)s,
             %(h5)s, %(s5)s, %(l5)s,
-            %(palRatio2)s,%(palRatio3)s,%(palRatio1)s,%(palRatio4)s,%(palRatio5)s,
+            %(palRatio1)s,%(palRatio2)s,%(palRatio3)s,%(palRatio4)s,%(palRatio5)s,
             %(angleRatio1)s, %(angleRatio2)s, %(angleRatio3)s, %(angleRatio4)s, 
             %(angleRatio5)s, %(angleRatio6)s, %(angleRatio7)s, %(angleRatio8)s,
             %(salCenterX)s,
@@ -56,15 +56,12 @@ class MySqlWriter(WriterBase):
             """
         artistID = self._getArtistID(artistBio[0], artistBio[1])
         categoryID = self._getCategoryID(sourceRow["Category"])
-        year = "0"
-        if(int(sourceRow["Year"]) > 0):
-            year = sourceRow["Year"]
 
         cursor = self.connection.cursor(buffered=True)
         try:
             datadict = {
                 "title": sourceRow["Title"].strip(),
-                "year": year,
+                "year": sourceRow["Year"],
                 "URL": sourceRow["URL"],
                 "artistID": artistID,
                 "categoryID": categoryID,

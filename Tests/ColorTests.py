@@ -20,6 +20,8 @@ class TestColorPalette(unittest.TestCase):
             for index in range(len(case["expectedPalette"])):
                 self.assertDictEqual(case["expectedPalette"][index], actualPalette[0][index])
 
+    def testOrdering(self):
+        pass
 
 
 if __name__ == '__main__':

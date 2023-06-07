@@ -21,7 +21,6 @@ class AnalysisController:
     def analyseImagesFromCSVFile(self):
         with open(self.sourceCsvPath, encoding="utf8") as readFile:
             reader = csv.DictReader(readFile, delimiter=";")
-            
             writer = MySqlWriter()
             writer.prepare()
 
@@ -36,9 +35,10 @@ class AnalysisController:
                     imageData = cv.imdecode(np.fromfile(imgPath, dtype=np.uint8), cv.IMREAD_UNCHANGED)
                     analysisResults = self.analyseImage(imageData, imgPath)
                     artistBioData = MetadataUtils.splitBioString(row["Artist"])
+                    row = MetadataUtils.updateYearIfNecessary(row, artistBioData)
                     writer.writeRow(row, analysisResults, artistBioData)
                 except Exception as err:
-                    print(err)
+                    print("error has occured" + str(err))
                 
                 counter += 1
                 if counter % 10 == 0:
